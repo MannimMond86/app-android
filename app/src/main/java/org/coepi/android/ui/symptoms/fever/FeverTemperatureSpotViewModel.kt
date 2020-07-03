@@ -2,47 +2,48 @@ package org.coepi.android.ui.symptoms.fever
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.ViewModel
-import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.android.schedulers.AndroidSchedulers.mainThread
-import org.coepi.android.NavGraphRootDirections.Companion.actionGlobalFeverTemperatureSpotInputFragment
 import org.coepi.android.domain.symptomflow.SymptomFlowManager
-import org.coepi.android.domain.symptomflow.SymptomInputs.Fever.TemperatureSpot.Armpit
-import org.coepi.android.domain.symptomflow.SymptomInputs.Fever.TemperatureSpot.Ear
-import org.coepi.android.domain.symptomflow.SymptomInputs.Fever.TemperatureSpot.Mouth
-import org.coepi.android.domain.symptomflow.UserInput.Some
 import org.coepi.android.extensions.rx.toIsInProgress
 import org.coepi.android.extensions.rx.toLiveData
 import org.coepi.android.ui.navigation.NavigationCommand.Back
-import org.coepi.android.ui.navigation.NavigationCommand.ToDestination
 import org.coepi.android.ui.navigation.RootNavigation
+import org.coepi.core.domain.model.SymptomInputs.Fever.TemperatureSpot
+import org.coepi.core.domain.model.SymptomInputs.Fever.TemperatureSpot.Armpit
+import org.coepi.core.domain.model.SymptomInputs.Fever.TemperatureSpot.Ear
+import org.coepi.core.domain.model.SymptomInputs.Fever.TemperatureSpot.Mouth
+import org.coepi.core.domain.model.SymptomInputs.Fever.TemperatureSpot.Other
+import org.coepi.core.domain.model.UserInput.Some
 
 class FeverTemperatureSpotViewModel (
     private val navigation: RootNavigation,
     private val symptomFlowManager: SymptomFlowManager
 ) : ViewModel() {
 
-    val isInProgress: LiveData<Boolean> = symptomFlowManager.sendReportState
+    val isInProgress: LiveData<Boolean> = symptomFlowManager.submitSymptomsState
         .toIsInProgress()
         .observeOn(mainThread())
         .toLiveData()
 
     fun onClickMouth() {
-        symptomFlowManager.setFeverTakenTemperatureSpot(Some(Mouth))
-        symptomFlowManager.navigateForward()
+        onSelectSpot(Mouth)
     }
 
     fun onClickEar() {
-        symptomFlowManager.setFeverTakenTemperatureSpot(Some(Ear))
-        symptomFlowManager.navigateForward()
+        onSelectSpot(Ear)
     }
 
     fun onClickArmpit() {
-        symptomFlowManager.setFeverTakenTemperatureSpot(Some(Armpit))
-        symptomFlowManager.navigateForward()
+        onSelectSpot(Armpit)
     }
 
     fun onClickOther() {
-        navigation.navigate(ToDestination(actionGlobalFeverTemperatureSpotInputFragment()))
+        onSelectSpot(Other)
+    }
+
+    private fun onSelectSpot(spot: TemperatureSpot) {
+        symptomFlowManager.setFeverTakenTemperatureSpot(Some(spot))
+        symptomFlowManager.navigateForward()
     }
 
     fun onClickSkip() {
